@@ -6,7 +6,15 @@
   </head>
   <body>
     <h1>Book Alchemy Library</h1>
-
+    {% with messages = get_flashed_messages() %} {% if messages %}
+    <ul class="flashes">
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %} {% if search_message %}
+      <p style="color: blue; font-weight: bold">{{ search_message }}</p>
+      {% endif %}
+    </ul>
+    {% endif %} {% endwith %}
     <p>
       <a href="{{ url_for('add_author') }}">Add Author</a> |
       <a href="{{ url_for('add_book') }}">Add Book</a>

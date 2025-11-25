@@ -81,9 +81,18 @@ def add_book():
 def home():
     """ """
     sort_by = request.args.get('sort')
+    search_term = request.args.get('search_term')
 
     with app.app_context():
         query = db.select(Book)
+
+        if search_term:
+            search_pattern = f"%{search_term}%"
+
+            query = query.filter(
+                (Book.title.ilike(search_pattern)) |
+                (Book.isbn.ilike(search_pattern))
+            )
 
         if sort_by == 'title':
             query = query.order_by(Book.title)
@@ -93,7 +102,14 @@ def home():
 
         all_books = db.session.execute(db.select(Book)).scalars().all()
 
-    return render_template('home.html', books=all_books)
+    message = None
+    if search_term and not all_books:
+        message = f"No books found matching '{search_term}'. Showing all books instead."
+
+    elif search_term and all_books:
+        message = f"Found {len(all_books)} book(s) matching '{search_term}'."
+
+    return render_template('home.html', books=all_books, search_message=message)
 
 
 if __name__ == "__main__":
