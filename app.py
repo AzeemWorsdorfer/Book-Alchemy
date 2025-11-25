@@ -9,6 +9,8 @@ app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(basedir, 'data/library.sqlite')}"
 
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'default-fallback-key-for-testing')
+
 db.init_app(app)
 
 # ------ Routes ------
@@ -42,12 +44,11 @@ def add_author():
             date_of_death=date_of_death
         )
 
-        with app.app_context():
-            db.session.add(new_author)
-            db.session.commit()
+        db.session.add(new_author)
+        db.session.commit()
 
         flash(f"Author '{name}' successfully added to the library!")
-        return redirect(url_for('add_author.html'))
+        return redirect(url_for('add_author'))
 
     return render_template('add_author.html')
 
@@ -62,8 +63,7 @@ def add_book():
           creates a new Book object, commits it to the database, 
           flashes a success message, and redirects.
     """
-    with app.app_context():
-        authors = db.session.execute(db.select(Author)).scalars().all()
+    authors = db.session.execute(db.select(Author)).scalars().all()
 
     if request.method == 'GET':
         return render_template('add_book.html', authors=authors)
@@ -75,18 +75,17 @@ def add_book():
         author_id = request.form.get('author_id')
 
         new_book = Book(
-            isnb=isbn,
+            isbn=isbn,  # FIXED TYPO
             title=title,
             publication_year=publication_year,
             author_id=author_id
         )
 
-        with app.app_context():
-            db.session.add(new_book)
-            db.session.commit()
+        db.session.add(new_book)
+        db.session.commit()
 
         flash(f"Book '{title}' successfully added to the library!")
-        return redirect(url_for('add_book.html'))
+        return redirect(url_for('add_book'))  # FIXED REDIRECT
 
 
 @app.route('/')
@@ -100,24 +99,22 @@ def home():
     sort_by = request.args.get('sort')
     search_term = request.args.get('search_term')
 
-    with app.app_context():
-        query = db.select(Book)
+    query = db.select(Book)
 
-        if search_term:
-            search_pattern = f"%{search_term}%"
+    if search_term:
+        search_pattern = f"%{search_term}%"
+        query = query.filter(
+            (Book.title.ilike(search_pattern)) |
+            (Book.isbn.ilike(search_pattern))
+        )
 
-            query = query.filter(
-                (Book.title.ilike(search_pattern)) |
-                (Book.isbn.ilike(search_pattern))
-            )
+    if sort_by == 'title':
+        query = query.order_by(Book.title)
 
-        if sort_by == 'title':
-            query = query.order_by(Book.title)
+    elif sort_by == 'author':
+        query = query.join(Book.author).order_by(Author.name)
 
-        elif sort_by == 'author':
-            query = query.join(Book.author).order_by(Author.name)
-
-        all_books = db.session.execute(db.select(Book)).scalars().all()
+    all_books = db.session.execute(query).scalars().all()
 
     message = None
     if search_term and not all_books:
@@ -131,7 +128,6 @@ def home():
 
 if __name__ == "__main__":
     app.run(debug=True)
-
 
 # with app.app_context():
 #    db.create_all()
