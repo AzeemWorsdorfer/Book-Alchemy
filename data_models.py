@@ -1,54 +1,29 @@
 from flask_sqlalchemy import SQLAlchemy
+from datetime import date
 
 db = SQLAlchemy()
 
-
+# Model Definitions
 class Author(db.Model):
-    """ Represents an author in the library.
-
-    Attributes:
-        id (int): A unique, auto-incrementing primary key.
-        name (str): The full name of the author (required).
-        birth_date (date): The author's date of birth.
-        date_of_death (date): The author's date of death (if applicable)
-    """
+    __tablename__ = 'author'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String, nullable=False)
     birth_date = db.Column(db.Date)
     date_of_death = db.Column(db.Date)
 
+    books = db.relationship('Book', backref='author', lazy=True, cascade='all, delete-orphan')
+
     def __repr__(self):
-        return f"<Author {self.name}>"
-
-    def __str__(self):
-        return f"{self.name} (ID: {self.id})"
-
+        return f'<Author {self.name}>'
 
 class Book(db.Model):
-    """ Represents a book in the library.
-
-    Attributes:
-        id (int): A unique, auto-incrementing primary key.
-        isbn (str): The International Standard Book Number (unique and required).
-        title (str): The title of the book (required).
-        publication_year (int): The year the book was published.
-        author_id (int): Foreign Key linking the book to its author's id.
-        author (relationship): A dynamic attribute to access the associated Author object
-    """
+    __tablename__ = 'book'
     id = db.Column(db.Integer, primary_key=True)
-    isbn = db.Column(db.String(13), unique=True, nullable=False)
-    title = db.Column(db.String(250), nullable=False)
+    isbn = db.Column(db.String, unique=True, nullable=False)
+    title = db.Column(db.String, nullable=False)
     publication_year = db.Column(db.Integer)
-
-    # Foreign Key Setup
-    author_id = db.Column(db.Integer, db.ForeignKey(
-        'author.id'), nullable=False)
-
-    # Defines a relationship for easy access
-    author = db.relationship('Author', backref='books')
+    
+    author_id = db.Column(db.Integer, db.ForeignKey('author.id'), nullable=False)
 
     def __repr__(self):
-        return f"<Book {self.title}>"
-
-    def __str__(self):
-        return f"{self.title} (ISBN: {self.isbn})"
+        return f'<Book {self.title}>'
