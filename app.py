@@ -1,6 +1,7 @@
 import os 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from data_models import db, Author, Book
 
 app = Flask(__name__)
 
