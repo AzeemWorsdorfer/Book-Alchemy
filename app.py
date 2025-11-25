@@ -80,10 +80,21 @@ def add_book():
 @app.route('/')
 def home():
     """ """
+    sort_by = request.args.get('sort')
+
     with app.app_context():
+        query = db.select(Book)
+
+        if sort_by == 'title':
+            query = query.order_by(Book.title)
+
+        elif sort_by == 'author':
+            query = query.join(Book.author).order_by(Author.name)
+
         all_books = db.session.execute(db.select(Book)).scalars().all()
-        
+
     return render_template('home.html', books=all_books)
+
 
 # with app.app_context():
 #    db.create_all()
