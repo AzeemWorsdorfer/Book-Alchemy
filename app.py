@@ -16,7 +16,12 @@ db.init_app(app)
 
 @app.route('/add_author', methods=['GET', 'POST'])
 def add_author():
-    """ Route to add author
+    """ Handles adding a new author to the database.
+
+    GET: Renders the 'add_author.html' form.
+    POST: Processes form data, validates/converts date fields, 
+          creates a new Author object, commits it to the database, 
+          flashes a success message, and redirects.
     """
     if request.method == 'GET':
         return render_template('add_author.html')
@@ -49,7 +54,14 @@ def add_author():
 
 @app.route('/add_book', methods=['GET', 'POST'])
 def add_book():
-    """ Route for add books """
+    """ Handles adding a new book to the database.
+
+    GET: Queries all existing authors, renders the 'add_book.html' form, 
+         and passes the authors list to populate the dropdown.
+    POST: Processes form data (title, ISBN, year, author_id), 
+          creates a new Book object, commits it to the database, 
+          flashes a success message, and redirects.
+    """
     with app.app_context():
         authors = db.session.execute(db.select(Author)).scalars().all()
 
@@ -79,7 +91,12 @@ def add_book():
 
 @app.route('/')
 def home():
-    """ """
+    """ Handles the main library display page.
+
+    Retrieves optional 'sort' and 'search_term' query parameters. 
+    Queries the Book table (applying filters/joins/ordering as needed). 
+    Renders the 'home.html' template, passing the filtered/sorted list of books.
+    """
     sort_by = request.args.get('sort')
     search_term = request.args.get('search_term')
 
