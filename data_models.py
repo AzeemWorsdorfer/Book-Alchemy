@@ -5,6 +5,12 @@ db = SQLAlchemy()
 
 # Model Definitions
 class Author(db.Model):
+    """Represents an Author in the digital library.
+
+    The primary key is 'id'. The relationship to the 'Book' model includes
+    a cascading delete rule, ensuring that when an Author is deleted, all 
+    associated Book records are also removed from the database.
+    """
     __tablename__ = 'author'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
@@ -17,6 +23,10 @@ class Author(db.Model):
         return f'<Author {self.name}>'
 
 class Book(db.Model):
+    """
+    Represents a Book in the digital library.
+    Books are linked to Authors via a Foreign Key relationship.
+    """
     __tablename__ = 'book'
     id = db.Column(db.Integer, primary_key=True)
     isbn = db.Column(db.String, unique=True, nullable=False)

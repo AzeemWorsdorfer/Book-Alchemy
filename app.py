@@ -168,9 +168,31 @@ def delete_book(book_id):
     return redirect(url_for('home'))
 
 
+@app.route('/author/<int:author_id>/delete', methods=['POST'])
+def delete_author(author_id):
+    """
+    Handles deletion of a specific author by ID. Due to cascading delete
+    rules set in data_models.py, all associated books are also deleted.
+    """
+    author_to_delete = db.session.get(Author, author_id)
+
+    if not author_to_delete:
+        flash("Error: Author not found.", 'error')
+        return redirect(url_for('home'))
+
+    author_name = author_to_delete.name
+
+    db.session.delete(author_to_delete)
+    db.session.commit()
+
+    flash(f"Author '{author_name}' and all their books have been deleted.")
+    return redirect(url_for('home'))
+
+
 if __name__ == "__main__":
+    # with app.app_context():
+    #    db.create_all()
+    #    print("Database tables created successfully.")
     app.run(debug=True)
 
-# with app.app_context():
-#    db.create_all()
-#    print("Database tables created successfully.")
+#
