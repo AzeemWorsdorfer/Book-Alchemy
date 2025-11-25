@@ -51,7 +51,7 @@ def add_author():
 def add_book():
     """ Route for add books """
     with app.app_context():
-        authors = db.session.execute(db.select(Author)).scalar().all()
+        authors = db.session.execute(db.select(Author)).scalars().all()
 
     if request.method == 'GET':
         return render_template('add_book.html', authors=authors)
@@ -76,6 +76,14 @@ def add_book():
         flash(f"Book '{title}' successfully added to the library!")
         return redirect(url_for('add_book.html'))
 
+
+@app.route('/')
+def home():
+    """ """
+    with app.app_context():
+        all_books = db.session.execute(db.select(Book)).scalars().all()
+        
+    return render_template('home.html', books=all_books)
 
 # with app.app_context():
 #    db.create_all()
