@@ -45,6 +45,22 @@
         <strong>Author:</strong> {{ book.author.name }}<br />
         <strong>ISBN:</strong> {{ book.isbn }}<br />
       </p>
+      <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px">
+        <h3>{{ book.title }}</h3>
+        <p></p>
+
+        <form
+          action="{{ url_for('delete_book', book_id=book.id) }}"
+          method="POST"
+          style="display: inline"
+        >
+          <input
+            type="submit"
+            value="Delete Book"
+            onclick="return confirm('Are you sure you want to delete {{ book.title }}?');"
+          />
+        </form>
+      </div>
     </div>
     {% endfor %}
   </body>
