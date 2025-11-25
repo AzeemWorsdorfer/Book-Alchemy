@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from data_models import db, Author, Book
 from datetime import date
 
+# Load variables from the local .env file
 dotenv.load_dotenv()
 
 app = Flask(__name__)
@@ -78,7 +79,7 @@ def add_book():
         author_id = request.form.get('author_id')
 
         new_book = Book(
-            isbn=isbn,  # FIXED TYPO
+            isbn=isbn,  
             title=title,
             publication_year=publication_year,
             author_id=author_id
@@ -88,7 +89,7 @@ def add_book():
         db.session.commit()
 
         flash(f"Book '{title}' successfully added to the library!")
-        return redirect(url_for('add_book'))  # FIXED REDIRECT
+        return redirect(url_for('add_book'))  
 
 
 @app.route('/')
@@ -129,6 +130,43 @@ def home():
     return render_template('home.html', books=all_books, search_message=message)
 
 
+@app.route('/book/<int:book_id>/delete', methods=['DELETE'])
+def delete_book(book_id):
+    """ Handles deletion of a specific book by ID. 
+    Also checks if the author has any remaining books; if not, deletes the author too.
+    """
+    with app.app_context():
+        book_to_delete = db.session.get(Book, book_id)
+        
+        if not book_to_delete:
+            flash("Error: Book not found.", 'error')
+            return redirect(url_for('home'))
+        
+        author_id = book_to_delete.author_id
+        book_title = book_to_delete.title
+        
+        db.session.delete(book_to_delete)
+        
+        remaining_books = db.session.execute(
+            db.select(Book).filter_by(author_id=author_id)
+        ).scalars.all()
+        
+        if not remaining_books:
+            author_to_delete = db.session.get(Author, author_id)
+            if author_to_delete:
+                author_name = author_to_delete.name
+                db.session.delete(author_to_delete)
+                flash_message = f"Book '{book_title}' deleted. Author '{author_name}' deleted as they have no remaining books."
+            else:
+                flash_message = f"Book '{book_title}' deleted."
+        else:
+            flash_message = f"Book '{book_title}' deleted."
+
+        db.session.commit()
+
+        flash(flash_message)
+        return redirect(url_for('home'))        
+        
 if __name__ == "__main__":
     app.run(debug=True)
 
