@@ -96,6 +96,10 @@ def home():
     return render_template('home.html', books=all_books)
 
 
+if __name__ == "__main__":
+    app.run(debug=True)
+
+
 # with app.app_context():
 #    db.create_all()
 #    print("Database tables created successfully.")
