@@ -6,15 +6,17 @@
   </head>
   <body>
     <h1>Book Alchemy Library</h1>
+
     {% with messages = get_flashed_messages() %} {% if messages %}
     <ul class="flashes">
       {% for message in messages %}
       <li>{{ message }}</li>
-      {% endfor %} {% if search_message %}
-      <p style="color: blue; font-weight: bold">{{ search_message }}</p>
-      {% endif %}
+      {% endfor %}
     </ul>
-    {% endif %} {% endwith %}
+    {% endif %} {% endwith %} {% if search_message %}
+    <p style="color: blue; font-weight: bold">{{ search_message }}</p>
+    {% endif %}
+
     <p>
       <a href="{{ url_for('add_author') }}">Add Author</a> |
       <a href="{{ url_for('add_book') }}">Add Book</a>
@@ -45,22 +47,18 @@
         <strong>Author:</strong> {{ book.author.name }}<br />
         <strong>ISBN:</strong> {{ book.isbn }}<br />
       </p>
-      <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px">
-        <h3>{{ book.title }}</h3>
-        <p></p>
 
-        <form
-          action="{{ url_for('delete_book', book_id=book.id) }}"
-          method="POST"
-          style="display: inline"
-        >
-          <input
-            type="submit"
-            value="Delete Book"
-            onclick="return confirm('Are you sure you want to delete {{ book.title }}?');"
-          />
-        </form>
-      </div>
+      <form
+        action="{{ url_for('delete_book', book_id=book.id) }}"
+        method="POST"
+        style="display: inline"
+      >
+        <input
+          type="submit"
+          value="Delete Book"
+          onclick="return confirm('Are you sure you want to delete {{ book.title }}?');"
+        />
+      </form>
     </div>
     {% endfor %}
   </body>
