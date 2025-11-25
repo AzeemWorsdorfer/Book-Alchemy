@@ -1,8 +1,11 @@
 import os
+import dotenv
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from data_models import db, Author, Book
 from datetime import date
+
+dotenv.load_dotenv()
 
 app = Flask(__name__)
 
