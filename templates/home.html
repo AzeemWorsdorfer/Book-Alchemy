@@ -2,13 +2,28 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Library Home</title>
   </head>
   <body>
+    <h1>Book Alchemy Library</h1>
+
+    <p>
+      <a href="{{ url_for('add_author') }}">Add Author</a> | 
+      <a href="{{ url_for('add_book') }}">Add Book</a>
+    </p>
+
+    <h3>Sort By: 
+      <a href="{{ url_for('home', sort='title') }}">Title</a> | 
+      <a href="{{ url_for('home', sort='author') }}">Author Name</a>
+    </h3>
 
     {% for book in books %}
-    <div> <h3>{{ book.title }}</h3>
+    <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+      <h3>{{ book.title }}</h3>
+      <p>
+        <strong>Author:</strong> {{ book.author.name }}<br>
+        <strong>ISBN:</strong> {{ book.isbn }}<br>
+        </p>
     </div>
     {% endfor %}
 
